@@ -3,7 +3,7 @@ Code from paper "Natural language supervision with a large and diverse dataset b
 
 ### Step 1: Clone the code from Github
 ```
-git clone 
+git clone https://github.com/ariaaay/clip2brain.git
 cd clip2brain
 ```
 You will also need to install the [natural scene datasets] (https://naturalscenesdataset.org/).
