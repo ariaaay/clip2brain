@@ -16,7 +16,7 @@ source venv/bin/activate
 pip install -r requirement.txt --no-index
 ```
 
-### Step 3: Reproduce resutls!
+### Step 3: Reproduce results!
 ```
 sh project_commands.sh
 ```
