@@ -6,7 +6,7 @@ Code from paper "Natural language supervision with a large and diverse dataset b
 git clone https://github.com/ariaaay/clip2brain.git
 cd clip2brain
 ```
-You will also need to install the [natural scene datasets] (https://naturalscenesdataset.org/).
+You will also need to install the [natural scene datasets](https://naturalscenesdataset.org/).
 
 ### Step 2: Install requirements
 [Requirements.txt](https://github.com/ariaaay/clip2brain/blob/main/requirements.txt) contains the necessary package for to run the code in this project.
