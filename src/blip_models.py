@@ -12,8 +12,6 @@ import timm
 import torch
 from torch import nn
 
-# import losses
-
 
 class LayerNorm(nn.LayerNorm):
     """Subclass torch's LayerNorm to handle fp16."""
@@ -227,7 +225,10 @@ class SIMCLR(nn.Module):
 
 class SLIP(CLIP):
     def __init__(
-        self, ssl_mlp_dim: int, ssl_emb_dim: int, **kwargs,
+        self,
+        ssl_mlp_dim: int,
+        ssl_emb_dim: int,
+        **kwargs,
     ):
         super().__init__(**kwargs)
 

@@ -94,7 +94,7 @@ def compute_sample_wise_ev(
     mask,
     biascorr=False,
     zscored_input=False,
-    output_dir="/user_data/yuanw3/project_outputs/NSD/output",
+    output_dir="output",
 ):
     l = np.load(
         "%s/trials_subj%02d.npy" % (output_dir, subj)
@@ -160,14 +160,7 @@ if __name__ == "__main__":
     if args.zscored_input:
         tag += "_zscored"
 
-    # stim = pd.read_pickle("/lab_data/tarrlab/common/datasets/NSD/nsddata/experiments/nsd/nsd_stim_info_merged.pkl")
-
     if args.compute_ev:
-        # try:
-        #     all_evs = np.load(
-        #         "%s/evs_subj%02d%s.npy" % (args.output_dir, args.subj, tag)
-        #     )
-        # except FileNotFoundError:
         print("computing EVs")
         all_evs = compute_ev(args.subj, roi, args.biascorr, args.zscored_input)
         np.save("%s/evs_subj%02d%s.npy" % (args.output_dir, args.subj, tag), all_evs)

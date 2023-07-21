@@ -4,8 +4,12 @@ import numpy as np
 import nibabel as nib
 from tqdm import tqdm
 
-roi_path = "/lab_data/tarrlab/common/datasets/NSD/nsddata/ppdata/"
-beta_path = "/lab_data/tarrlab/common/datasets/NSD/nsddata_betas/ppdata/"
+import configparser
+
+config = configparser.ConfigParser()
+config.read("config.cfg")
+ROI_PATH = config["DATA"]["PPdataPath"]
+BETA_PATH = config["DATA"]["BetaPath"]
 
 
 def zscore_by_run(mat, run_n=480):
@@ -41,7 +45,7 @@ def extract_cortical_mask(subj, roi="", output_dir=None):
         roi_tag = ""
 
     nsd_general_path = "%s/subj%02d/func1pt8mm/roi/nsdgeneral.nii.gz" % (
-        roi_path,
+        ROI_PATH,
         subj,
     )
     nsd_general = nib.load(nsd_general_path)
@@ -50,7 +54,7 @@ def extract_cortical_mask(subj, roi="", output_dir=None):
     if roi == "general" or roi == "":
         anat_mat = nsd_cortical_mat
     else:
-        roi_subj_path = "%s/subj%02d/func1pt8mm/roi/%s.nii.gz" % (roi_path, subj, roi)
+        roi_subj_path = "%s/subj%02d/func1pt8mm/roi/%s.nii.gz" % (ROI_PATH, subj, roi)
         anat = nib.load(roi_subj_path)
         anat_mat = anat.get_fdata()
 
@@ -85,7 +89,11 @@ def extract_cortical_mask(subj, roi="", output_dir=None):
 
 
 def extract_voxels(
-    subj, roi, zscore, mask=None, mask_tag="",
+    subj,
+    roi,
+    zscore,
+    mask=None,
+    mask_tag="",
 ):
     tag = roi
 
@@ -100,7 +108,7 @@ def extract_voxels(
     )
 
     beta_subj_dir = "%s/subj%02d/func1pt8mm/betas_fithrf_GLMdenoise_RR" % (
-        beta_path,
+        BETA_PATH,
         subj,
     )
     if mask is None:
@@ -165,8 +173,7 @@ if __name__ == "__main__":
         type=str,
         default="",
         help="extract voxels related to rois. Choices: general, face, words, kastner2015. "
-        "Input arguments are files names of ROIs in "
-        "/lab_data/tarrlab/common/datasets/NSD/nsddata/ppdata/subj01/func1pt8mm/roi",
+        "Input arguments are files names of ROIs in func1pt8mm/roi",
     )
     parser.add_argument(
         "--zscore_by_run",
@@ -182,6 +189,9 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", type=str, default="output")
 
     args = parser.parse_args()
+
+    if not os.path.exists("%s/cortical_voxels" % args.output_dir):
+        os.makedirs("%s/cortical_voxels" % args.output_dir)
 
     if args.all_subj:
         subj = np.arange(1, 9)

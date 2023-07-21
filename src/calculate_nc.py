@@ -6,15 +6,12 @@ import numpy as np
 """
 Modified from code from Gabriel Sarch
 """
-# subj = 1
-# beta_path = "/lab_data/tarrlab/common/datasets/NSD/nsddata_betas/ppdata/"
-# save_dir = '/user_data/gsarch/project_outputs/NSD/output/noise_ceiling'
 
 
 def save_1d_noise_ceiling(
-    subjs=[1],
-    beta_path="/lab_data/tarrlab/common/datasets/NSD/nsddata_betas/ppdata/",
-    save_dir="/user_data/yuanw3/project_outputs/NSD/output/noise_ceiling",
+    subjs,
+    beta_path,
+    save_dir="output/noise_ceiling",
 ):
 
     # from https://cvnlab.slite.com/p/channel/CPyFRAyDYpxdkPK6YbB5R1/notes/h_T_2Djeid
@@ -65,7 +62,7 @@ def save_1d_noise_ceiling(
         )  # this is noise ceiling signal-to-noise ratio (ncsnr) for each voxel and NOT noise ceiling
         ncsnr = nc_file.get_data()
 
-        root = f"/user_data/yuanw3/project_outputs/NSD/output/voxels_masks/subj{subj}/"
+        root = f"output/voxels_masks/subj{subj}/"
 
         cm = np.load(root + f"cortical_mask_subj0{subj}.npy")
 
@@ -95,4 +92,13 @@ def save_1d_noise_ceiling(
 
 if __name__ == "__main__":
     subjs = [1, 2, 3, 4, 5, 6, 7, 8]
-    save_1d_noise_ceiling(subjs=subjs)
+    import configparser
+
+    config = configparser.ConfigParser()
+    config.read("config.cfg")
+    beta_path = config["NSD"]["BetaPath"]
+
+    save_dir = "output/noise_ceiling"
+    if not os.exist(save_dir):
+        os.makedir(save_dir)
+    save_1d_noise_ceiling(subjs=subjs, beta_path=beta_path, save_dir=save_dir)

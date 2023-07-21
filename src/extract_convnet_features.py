@@ -18,7 +18,12 @@ from torchvision import transforms, utils, models
 import torchextractor as tx
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-stimuli_dir = "/lab_data/tarrlab/common/datasets/NSD_images/images"
+import configparser
+
+config = configparser.ConfigParser()
+config.read("config.cfg")
+stimuli_dir = config["DATA"]["StimuliDir"]
+
 preprocess = transforms.Compose(
     [
         # transforms.Resize(375),
@@ -109,28 +114,20 @@ def extract_resnet_last_layer_feature(cid=None, saving=True):
 
 
 if __name__ == "__main__":
-    # stim = pd.read_pickle(
-    #     "/lab_data/tarrlab/common/datasets/NSD/nsddata/experiments/nsd/nsd_stim_info_merged.pkl"
-    # )
-    # all_coco_ids = stim.cocoId
-    # all_images_paths = list()
-    # all_images_paths += ["%s/%s.jpg" % (stimuli_dir, id) for id in all_coco_ids]
-    # print("Number of Images: {}".format(len(all_images_paths)))
     parser = argparse.ArgumentParser()
     parser.add_argument("--subj", default=1, type=int)
     parser.add_argument(
         "--feature_dir",
         type=str,
-        default="/user_data/yuanw3/project_outputs/NSD/features",
+        default="features",
     )
     parser.add_argument(
         "--project_output_dir",
         type=str,
-        default="/user_data/yuanw3/project_outputs/NSD/output",
+        default="output",
     )
     args = parser.parse_args()
     feature_output_dir = "%s/subj%01d" % (args.feature_dir, args.subj)
-    # feature_output_dir = "/lab_data/tarrlab/common/datasets/features/NSD/"
     all_coco_ids = np.load(
         "%s/coco_ID_of_repeats_subj%02d.npy" % (args.project_output_dir, args.subj)
     )

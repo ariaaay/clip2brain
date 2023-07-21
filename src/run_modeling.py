@@ -13,12 +13,22 @@ from util.data_util import load_subset_trials
 
 
 def run(
-    fm, br, model_name, test, fix_testing, cv, saving_dir,
+    fm,
+    br,
+    model_name,
+    test,
+    fix_testing,
+    cv,
+    saving_dir,
 ):
     if test:
         print("Running Bootstrap Test")
         bootstrap_test(
-            fm, br, model_name=model_name, subj=args.subj, saving_dir=saving_dir,
+            fm,
+            br,
+            model_name=model_name,
+            subj=args.subj,
+            saving_dir=saving_dir,
         )
 
     else:

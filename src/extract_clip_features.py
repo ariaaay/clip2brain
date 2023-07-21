@@ -1,5 +1,6 @@
 import copy
 import argparse
+import configparser
 
 import pandas as pd
 import numpy as np
@@ -52,7 +53,8 @@ def extract_object_base_text_feature():
     all_features = np.array(all_features).squeeze()
     print("Feature shape is: " + str(all_features.shape))
     np.save(
-        "%s/clip_object.npy" % feature_output_dir, all_features,
+        "%s/clip_object.npy" % feature_output_dir,
+        all_features,
     )
 
 
@@ -69,7 +71,8 @@ def extract_top1_obejct_base_text_feature():
     all_features = np.array(all_features).squeeze()
     print("Feature shape is: " + str(all_features.shape))
     np.save(
-        "%s/clip_top1_object.npy" % feature_output_dir, all_features,
+        "%s/clip_top1_object.npy" % feature_output_dir,
+        all_features,
     )
 
 
@@ -86,7 +89,8 @@ def extract_obj_cap_intersect_text_feature():
     all_features = np.array(all_features)
     print("Feature shape is: " + str(all_features.shape))
     np.save(
-        "%s/clip_object_caption_overlap.npy" % feature_output_dir, all_features,
+        "%s/clip_object_caption_overlap.npy" % feature_output_dir,
+        all_features,
     )
     return
 
@@ -302,11 +306,7 @@ def extract_last_layer_feature(model_name="ViT-B/32", modality="vision"):
 
             all_features.append(image_features.cpu().data.numpy())
         all_features = np.array(all_features)
-        # print(all_features.shape)
-        # np.save(
-        #     "/lab_data/tarrlab/common/datasets/features/NSD/clip_.npy" % model_name,
-        #     all_features,
-        # )
+
         return all_features
     elif modality == "text":  # this is subject specific
         # extract text feature of image titles
@@ -380,14 +380,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--subj", default=1, type=int)
     parser.add_argument(
-        "--feature_dir", type=str, default="features",
+        "--feature_dir",
+        type=str,
+        default="features",
     )
     parser.add_argument(
-        "--project_output_dir", type=str, default="output",
+        "--project_output_dir",
+        type=str,
+        default="output",
     )
 
     args = parser.parse_args()
-    stimuli_dir = "/lab_data/tarrlab/common/datasets/NSD_images/images"
+
+    config = configparser.ConfigParser()
+    config.read("config.cfg")
+    stimuli_dir = config["DATA"]["StimuliDir"]
 
     expand_dict = {}
     expand_dict["person"] = ["man", "men", "women", "woman", "people", "guys", "people"]

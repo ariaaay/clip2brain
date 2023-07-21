@@ -49,9 +49,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    stim = pd.read_pickle(
-        "/lab_data/tarrlab/common/datasets/NSD/nsddata/experiments/nsd/nsd_stim_info_merged.pkl"
-    )
+    import configparser
+
+    config = configparser.ConfigParser()
+    config.read("config.cfg")
+    stim_path = config["DATA"]["StimuliInfo"]
+
+    stim = pd.read_pickle(stim_path)
 
     if args.type == "cocoId":
         image_list = extract_repeat_img_list(stim, args.subj)

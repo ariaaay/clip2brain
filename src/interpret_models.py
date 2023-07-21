@@ -339,7 +339,8 @@ def sample_level_semantic_analysis(
 
         rsm1 = computeRSM(model1, args.feature_dir)
         np.save(
-            "%s/output/rdms/subj%02d_%s.npy" % (args.output_root, subj, model1), rsm1,
+            "%s/output/rdms/subj%02d_%s.npy" % (args.output_root, subj, model1),
+            rsm1,
         )
 
     try:
@@ -351,7 +352,8 @@ def sample_level_semantic_analysis(
 
         rsm2 = computeRSM(model2, args.feature_dir)
         np.save(
-            "%s/output/rdms/subj%02d_%s.npy" % (args.output_root, subj, model2), rsm2,
+            "%s/output/rdms/subj%02d_%s.npy" % (args.output_root, subj, model2),
+            rsm2,
         )
 
     # plot max diff images
@@ -481,7 +483,9 @@ def compare_model_and_brain_performance_on_COCO():
     from utils.coco_utils import load_captions
     from utils.data_util import compute_sample_performance
 
-    stimuli_dir = "/lab_data/tarrlab/common/datasets/NSD_images/images"
+    config = configparser.ConfigParser()
+    config.read("config.cfg")
+    stimuli_dir = config["DATA"]["StimuliDir"]
 
     corrs_v, corrs_t = [], []
     for subj in np.arange(1, 9):
@@ -596,7 +600,8 @@ def image_level_scatter_plot(
     except FileNotFoundError:
         rsm1 = computeRSM(model1, args.feature_dir)
         np.save(
-            "%s/output/rdms/subj%02d_%s.npy" % (args.output_root, subj, model1), rsm1,
+            "%s/output/rdms/subj%02d_%s.npy" % (args.output_root, subj, model1),
+            rsm1,
         )
 
     try:
@@ -606,7 +611,8 @@ def image_level_scatter_plot(
     except FileNotFoundError:
         rsm2 = computeRSM(model2, args.feature_dir)
         np.save(
-            "%s/output/rdms/subj%02d_%s.npy" % (args.output_root, subj, model2), rsm2,
+            "%s/output/rdms/subj%02d_%s.npy" % (args.output_root, subj, model2),
+            rsm2,
         )
 
     tmp = np.ones(rsm1.shape)
@@ -681,7 +687,8 @@ def category_based_similarity_analysis(model, threshold, subj=1):
     except FileNotFoundError:
         rsm = computeRSM(model1, args.feature_dir)
         np.save(
-            "%s/output/rdms/subj%02d_%s.npy" % (args.output_root, subj, model), rsm,
+            "%s/output/rdms/subj%02d_%s.npy" % (args.output_root, subj, model),
+            rsm,
         )
 
     tmp = np.ones(rsm.shape)
@@ -693,7 +700,10 @@ def category_based_similarity_analysis(model, threshold, subj=1):
         "%s/output/coco_ID_of_repeats_subj%02d.npy" % (args.output_root, 1)
     )
     COCO_cat_feat = get_preloaded_features(
-        1, stimulus_list, "cat", features_dir="%s/features" % args.output_root,
+        1,
+        stimulus_list,
+        "cat",
+        features_dir="%s/features" % args.output_root,
     )
     print(COCO_cat_feat.shape)
     person_flag = COCO_cat_feat[:, 0] > threshold
@@ -916,22 +926,20 @@ if __name__ == "__main__":
             extract_captions_for_voxel(mask=weight_mask, roi="%s_unique_var" % model)
 
     if args.sample_level_semantic_analysis:
-        from pycocotools.coco import COCO
         import skimage.io as io
 
-        annFile_train = "/lab_data/tarrlab/common/datasets/coco_annotations/instances_train2017.json"
-        annFile_val = (
-            "/lab_data/tarrlab/common/datasets/coco_annotations/instances_val2017.json"
-        )
+        from pycocotools.coco import COCO
+        import configparser
+
+        config = configparser.ConfigParser()
+        config.read("config.cfg")
+        annFile_train = config["COCO"]["AnnFileTrain"]
+        annFile_val = config["COCO"]["AnnFileVal"]
+        annFile_train_caps = config["COCO"]["AnnFileTrainCaps"]
+        annFile_val_caps = config["COCO"]["AnnFileValCaps"]
+
         coco_train = COCO(annFile_train)
         coco_val = COCO(annFile_val)
-
-        annFile_train_caps = (
-            "/lab_data/tarrlab/common/datasets/coco_annotations/captions_train2017.json"
-        )
-        annFile_val_caps = (
-            "/lab_data/tarrlab/common/datasets/coco_annotations/captions_val2017.json"
-        )
         coco_train_caps = COCO(annFile_train_caps)
         coco_val_caps = COCO(annFile_val_caps)
 
@@ -1190,11 +1198,13 @@ if __name__ == "__main__":
 
     if args.vox_img_maximization:
         from pycocotools.coco import COCO
+        import configparser
 
-        annFile_train = "/lab_data/tarrlab/common/datasets/coco_annotations/instances_train2017.json"
-        annFile_val = (
-            "/lab_data/tarrlab/common/datasets/coco_annotations/instances_val2017.json"
-        )
+        config = configparser.ConfigParser()
+        config.read("config.cfg")
+        annFile_train = config["COCO"]["AnnFileTrain"]
+        annFile_val = config["COCO"]["AnnFileVal"]
+
         coco_train = COCO(annFile_train)
         coco_val = COCO(annFile_val)
 

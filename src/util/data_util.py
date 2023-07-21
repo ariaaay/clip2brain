@@ -5,6 +5,13 @@ import pandas as pd
 from torch import neg
 from util.model_config import COCO_cat, COCO_super_cat
 
+import configparser
+
+config = configparser.ConfigParser()
+config.read("config.cfg")
+stim_path = config["DATA"]["StimuliInfo"]
+STIM = pd.read_pickle(stim_path)
+
 
 def fill_in_nan_voxels(vals, subj, output_root, fill_in=0):
     try:  # some subject has zeros voxels masked out
@@ -67,19 +74,10 @@ def load_model_performance(model, output_root=".", subj=1, measure="corr"):
 
 
 def load_top1_objects_in_COCO(cid):
-    try:
-        stim = pd.read_pickle(
-            "/lab_data/tarrlab/common/datasets/NSD/nsddata/experiments/nsd/nsd_stim_info_merged.pkl"
-        )
-    except FileNotFoundError:
-        stim = pd.read_pickle("nsddata/nsd_stim_info_merged.pkl")
-    try:
-        cat = np.load("/lab_data/tarrlab/common/datasets/features/NSD/COCO_Cat/cat.npy")
-    except FileNotFoundError:
-        cat = np.load("features/cat.npy")
+    cat = np.load("features/cat.npy")
 
     # extract the nsd ID corresponding to the coco ID in the stimulus list
-    stim_ind = stim["nsdId"][stim["cocoId"] == cid]
+    stim_ind = STIM["nsdId"][STIM["cocoId"] == cid]
     # extract the respective features for that nsd ID
     catID_of_trial = cat[stim_ind, :]
     catnm = COCO_cat[np.argmax(catID_of_trial)]
@@ -87,23 +85,11 @@ def load_top1_objects_in_COCO(cid):
 
 
 def load_objects_in_COCO(cid):
-    try:
-        stim = pd.read_pickle(
-            "/lab_data/tarrlab/common/datasets/NSD/nsddata/experiments/nsd/nsd_stim_info_merged.pkl"
-        )
-    except FileNotFoundError:
-        stim = pd.read_pickle("nsddata/nsd_stim_info_merged.pkl")
-    try:
-        cat = np.load("/lab_data/tarrlab/common/datasets/features/NSD/COCO_Cat/cat.npy")
-        supcat = np.load(
-            "/lab_data/tarrlab/common/datasets/features/NSD/COCO_Cat/supcat.npy"
-        )
-    except FileNotFoundError:
-        cat = np.load("features/cat.npy")
-        supcat = np.load("features/supcat.npy")
+    cat = np.load("features/cat.npy")
+    supcat = np.load("features/supcat.npy")
 
     # extract the nsd ID corresponding to the coco ID in the stimulus list
-    stim_ind = stim["nsdId"][stim["cocoId"] == cid]
+    stim_ind = STIM["nsdId"][STIM["cocoId"] == cid]
     # extract the repective features for that nsd ID
     catID_of_trial = cat[stim_ind, :].squeeze()
     supcatID_of_trial = supcat[stim_ind, :].squeeze()
@@ -135,9 +121,7 @@ def load_subset_trials(coco_id_by_trial, cat, negcat=False):
         return subset_idx
 
 
-def find_trial_indexes(
-    subj, cat="person", output_dir="/user_data/yuanw3/project_outputs/NSD/output"
-):
+def find_trial_indexes(subj, cat="person", output_dir="output"):
     coco_id = np.load("%s/coco_ID_of_repeats_subj%02d.npy" % (output_dir, subj))
 
     idx1, idx2 = [], []
@@ -150,9 +134,7 @@ def find_trial_indexes(
     return idx1, idx2
 
 
-def extract_test_image_ids(
-    subj=1, output_dir="/user_data/yuanw3/project_outputs/NSD/output"
-):
+def extract_test_image_ids(subj=1, output_dir="output"):
     from sklearn.model_selection import train_test_split
 
     _, test_idx = train_test_split(range(10000), test_size=0.15, random_state=42)

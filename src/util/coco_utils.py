@@ -1,10 +1,14 @@
 import skimage.io as io
 from pycocotools.coco import COCO
+import configparser
 
-trainFile = "/lab_data/tarrlab/common/datasets/coco_annotations/captions_train2017.json"
-valFile = "/lab_data/tarrlab/common/datasets/coco_annotations/captions_val2017.json"
-train_caps = COCO(trainFile)
-val_caps = COCO(valFile)
+config = configparser.ConfigParser()
+config.read("config.cfg")
+annFile_train_caps = config["COCO"]["AnnFileTrainCaps"]
+annFile_val_caps = config["COCO"]["AnnFileValCaps"]
+
+train_caps = COCO(annFile_train_caps)
+val_caps = COCO(annFile_val_caps)
 
 
 def load_captions(cid):

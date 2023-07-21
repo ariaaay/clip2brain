@@ -5,7 +5,6 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 import os
 import argparse
 
-# from msilib.schema import File
 import pickle
 import matplotlib as mpl
 
@@ -37,26 +36,6 @@ from util.model_config import *
 # device = "cuda" if torch.cuda.is_available() else "cpu"
 
 from pycocotools.coco import COCO
-
-# mw.configure(backend="Agg")
-
-# annFile_train = (
-#     "/lab_data/tarrlab/common/datasets/coco_annotations/instances_train2017.json"
-# )
-# annFile_val = (
-#     "/lab_data/tarrlab/common/datasets/coco_annotations/instances_val2017.json"
-# )
-# coco_train = COCO(annFile_train)
-# coco_val = COCO(annFile_val)
-
-# annFile_train_caps = (
-#     "/lab_data/tarrlab/common/datasets/coco_annotations/captions_train2017.json"
-# )
-# annFile_val_caps = (
-#     "/lab_data/tarrlab/common/datasets/coco_annotations/captions_val2017.json"
-# )
-# coco_train_caps = COCO(annFile_train_caps)
-# coco_val_caps = COCO(annFile_val_caps)
 
 
 def plot_image_wise_performance(model1, model2, masking="sig", measure="corrs"):
@@ -252,8 +231,8 @@ def make_roi_df(roi_names, subjs, update=False):
 
                 else:
                     roi = nib.load(
-                        "/lab_data/tarrlab/common/datasets/NSD/nsddata/ppdata/subj%02d/func1pt8mm/roi/%s.nii.gz"
-                        % (subj, roi_name)
+                        "%s/subj%02d/func1pt8mm/roi/%s.nii.gz"
+                        % (PPDATA_PATH, subj, roi_name)
                     )
                     roi_volume = roi.get_fdata()
                 roi_vals = roi_volume[cortical_mask]
@@ -380,7 +359,13 @@ def plot_model_comparison_on_ROI(roi_regions, roi, model1, model2):
     # print(m1_mps.shape)
 
     fig, ax = plt.subplots()
-    h = ax.hist2d(m1_ru, m2_ru, bins=100, norm=mpl.colors.LogNorm(), cmap="YlOrRd",)
+    h = ax.hist2d(
+        m1_ru,
+        m2_ru,
+        bins=100,
+        norm=mpl.colors.LogNorm(),
+        cmap="YlOrRd",
+    )
     fig.colorbar(h[3], ax=ax)
     plt.xlabel(model_label[model1])
     plt.ylabel(model_label[model2])
@@ -466,6 +451,12 @@ if __name__ == "__main__":
     parser.add_argument("--roi_value", default=0, type=int)
     args = parser.parse_args()
 
+    import configparser
+
+    config = configparser.ConfigParser()
+    config.read("config.cfg")
+    PPDATA_PATH = config["NSD"]["PPdataPath"]
+
     if args.process_bootstrap_results:
         # for subj in np.arange(1,9):
         # process_bootstrap_result_for_uv(subj, "clip_visual_resnet", "resnet50_bottleneck")
@@ -507,13 +498,15 @@ if __name__ == "__main__":
 
     if args.plot_image_wise_performance:
         # scatter plot by images
-        from pycocotools.coco import COCO
         import skimage.io as io
+        from pycocotools.coco import COCO
+        import configparser
 
-        annFile_train = "/lab_data/tarrlab/common/datasets/coco_annotations/instances_train2017.json"
-        annFile_val = (
-            "/lab_data/tarrlab/common/datasets/coco_annotations/instances_val2017.json"
-        )
+        config = configparser.ConfigParser()
+        config.read("config.cfg")
+        annFile_train = config["COCO"]["AnnFileTrain"]
+        annFile_val = config["COCO"]["AnnFileVal"]
+
         coco_train = COCO(annFile_train)
         coco_val = COCO(annFile_val)
 

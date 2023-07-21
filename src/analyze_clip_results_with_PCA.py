@@ -1,9 +1,7 @@
-from cProfile import label
 import os
 import argparse
 
 import pickle
-from unicodedata import name
 
 import seaborn as sns
 import nibabel as nib
@@ -12,7 +10,6 @@ import matplotlib.pyplot as plt
 
 from tqdm import tqdm
 from sklearn.decomposition import PCA
-
 
 # import torch
 import clip
@@ -23,19 +20,6 @@ from util.data_util import (
     fill_in_nan_voxels,
 )
 from util.model_config import *
-
-
-def make_word_cloud(text, saving_fname):
-    from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
-
-    text = " ".join(t for t in text)
-    # print(text)
-    wordcloud = WordCloud(background_color="white").generate(text)
-
-    # Display the generated image:
-    plt.imshow(wordcloud, interpolation="bilinear")
-    plt.axis("off")
-    wordcloud.to_file(saving_fname)
 
 
 def make_name_modifier(args):
@@ -262,7 +246,10 @@ def get_PCs(args, data=None, return_pca_object=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--subj", type=int, default=0, help="Specify which subject to build model on.",
+        "--subj",
+        type=int,
+        default=0,
+        help="Specify which subject to build model on.",
     )
     parser.add_argument(
         "--output_root",
@@ -343,10 +330,13 @@ if __name__ == "__main__":
         # getting scores and plotting
         from pycocotools.coco import COCO
 
-        annFile_train = "/lab_data/tarrlab/common/datasets/coco_annotations/instances_train2017.json"
-        annFile_val = (
-            "/lab_data/tarrlab/common/datasets/coco_annotations/instances_val2017.json"
-        )
+        import configparser
+
+        config = configparser.ConfigParser()
+        config.read("config.cfg")
+        annFile_train = config["COCO"]["AnnFileTrain"]
+        annFile_val = config["COCO"]["AnnFileVal"]
+
         coco_train = COCO(annFile_train)
         coco_val = COCO(annFile_val)
 
@@ -358,7 +348,10 @@ if __name__ == "__main__":
         # compute label embedding correlation
         best_label_corrs, worst_label_corrs = [], []
         COCO_cat_feat = get_preloaded_features(
-            1, stimulus_list, "cat", features_dir="%s/features" % args.output_root,
+            1,
+            stimulus_list,
+            "cat",
+            features_dir="%s/features" % args.output_root,
         )
 
         # plot sampled images
@@ -509,7 +502,8 @@ if __name__ == "__main__":
             if not os.path.exists(save_dir):
                 os.mkdir(save_dir)
             np.save(
-                "%s/pca_projections.npy" % (save_dir), subj_proj,
+                "%s/pca_projections.npy" % (save_dir),
+                subj_proj,
             )
             idx += np.sum(subj_mask)
 
@@ -536,116 +530,6 @@ if __name__ == "__main__":
             subjs=subjs,
             dim=20,
         )
-
-    # if args.image2pc:
-    #     from featureprep.feature_prep import get_preloaded_features
-    #     from analyze_clip_results import extract_text_activations, extract_emb_keywords, get_coco_anns, get_coco_image, get_coco_caps
-
-    #     model = "clip"
-    #     stimulus_list = np.load(
-    #         "%s/output/coco_ID_of_repeats_subj%02d.npy" % (args.output_root, 1)
-    #     )
-
-    #     activations = get_preloaded_features(
-    #         1,
-    #         stimulus_list,
-    #         "%s" % model.replace("_rep_only", ""),
-    #         features_dir="%s/features" % args.output_root,
-    #     )
-
-    #     PCs, name_modifier = get_PCs(model=model)
-    #     nPC = PCs.shape[0]
-    #     pc_proj = np.dot(activations, PCs.T) # returns a 10000 by 20 matrix
-    #     top2_pcs = np.argsort(np.abs(pc_proj), axis=1)[:, -2:] # returns a 10000 by 2 matrix
-    #     pc_counter = np.zeros((nPC, nPC))
-    #     for i in range(top2_pcs.shape[0]):
-    #         j, k = top2_pcs[i, :]
-    #         pc_counter[j, k] += 1
-    #         pc_counter[k, j] += 1
-
-    #     plt.imshow(pc_counter, cmap="Blues")
-    #     plt.xlabel("PCs")
-    #     plt.ylabel("PCs")
-    #     plt.xticks(np.arange(nPC))
-    #     plt.yticks(np.arange(nPC))
-    #     plt.colorbar()
-    #     plt.savefig("figures/PCA/top2pc/top2pc.png")
-
-    #     ind = np.unravel_index(np.argsort(pc_counter, axis=None), pc_counter.shape)
-    #     best_2_pcs = [(ind[0][::-1][i], ind[1][::-1][i]) for i in np.arange(0, 10, 2)]
-    #     print(best_2_pcs)
-    #     for p in best_2_pcs:
-    #         proj = np.vstack((pc_proj[:, p[0]], pc_proj[:, p[1]])).T
-    #         proj_norm = np.linalg.norm(proj, axis=1)
-    #         img_rank = np.argsort(proj_norm)[::-1][:20]
-    #         plt.figure(figsize=(20,20))
-    #         for i, idx in enumerate(img_rank):
-    #             coco_id = stimulus_list[idx]
-    #             I = get_coco_image(coco_id)
-    #             plt.subplot(4, 5, i+1)
-    #             plt.imshow(I)
-    #             plt.title("proj: %.2f, %.2f" % (pc_proj[idx, p[0]], pc_proj[idx, p[1]]))
-    #         plt.savefig("figures/PCA/top2pc/top_images_for_PC%d&%d_%s.png" % (p[0], p[1], name_modifier))
-
-    # proj_norm = np.linalg.norm(pc_proj, axis=1)
-    # img_rank = np.argsort(proj_norm)[::-1][:20]
-    # plt.figure(figsize=(30,10))
-    # for i, idx in enumerate(img_rank):
-    #     coco_id = stimulus_list[idx]
-    #     I = get_coco_image(coco_id)
-    #     pref_pc = np.argsort(pc_proj[idx,:])[::-1][:2]
-    #     first2 = ["%d:%.2f" % (pc, pc_proj[idx, pc]) for pc in pref_pc]
-    #     plt.subplot(4, 5, i + 1)
-    #     plt.axis("off")
-    #     plt.imshow(I)
-    #     plt.title(first2)
-    # plt.tight_layout()
-    # plt.savefig("figures/PCA/image_vis/image2PC/image_PC_proj_%s_l2max.png" % model)
-
-    # img_rank = np.argsort(proj_norm)[:20]
-    # plt.figure(figsize=(30,10))
-    # for i, idx in enumerate(img_rank):
-    #     coco_id = stimulus_list[idx]
-    #     I = get_coco_image(coco_id)
-    #     pref_pc = np.argsort(pc_proj[idx,:])[::-1][:3]
-    #     first3 = ["%d:%.2f" % (pc, pc_proj[idx, pc]) for pc in pref_pc]
-    #     plt.subplot(4, 5, i + 1)
-    #     plt.axis("off")
-    #     plt.imshow(I)
-    #     plt.title(first3)
-    # plt.tight_layout()
-    # plt.savefig("figures/PCA/image_vis/image2PC/image_PC_proj_%s_l2min.png" % model)
-    # plt.close()
-
-    # proj_norm = np.linalg.norm(pc_proj, ord=-np.inf, axis=1)
-    # img_rank = np.argsort(proj_norm)[:20]
-    # plt.figure(figsize=(30,10))
-    # for i, idx in enumerate(img_rank):
-    #     coco_id = stimulus_list[idx]
-    #     I = get_coco_image(coco_id)
-    #     pref_pc = np.argsort(pc_proj[idx,:])[::-1][:3]
-    #     first3 = ["%d:%.2f" % (pc, pc_proj[idx, pc]) for pc in pref_pc]
-    #     plt.subplot(4, 5, i + 1)
-    #     plt.axis("off")
-    #     plt.imshow(I)
-    #     plt.title(first3)
-    # plt.tight_layout()
-    # plt.savefig("figures/PCA/image_vis/image2PC/image_PC_proj_%s_-inf.png" % model)
-    # plt.close()
-
-    # if args.load_and_show_all_word_clouds:
-    #     import matplotlib.image as img
-    #     plt.figure(figsize=(10, 50))
-    #     for i in range(20):
-    #         plt.subplot(20, 2, i*2+1)
-    #         im = img.imread("./figures/PCA/image_vis/word_clouds/PC%d_best_captions.png" % i)
-    #         plt.imshow(im)
-    #         plt.title("PC %d" % i)
-    #         plt.subplot(20, 2, i*2+2)
-    #         im = img.imread("./figures/PCA/image_vis/word_clouds/PC%d_worst_captions.png" % i)
-    #         plt.imshow(im)
-    #     plt.tight_layout()
-    #     plt.savefig("./figures/PCA/image_vis/word_clouds/all_word_clouds.png")
 
     if args.hclustering_on_pc_proj:
         from scipy.cluster.hierarchy import (
@@ -711,7 +595,11 @@ if __name__ == "__main__":
             "%s" % args.model,
             features_dir="%s/features" % args.output_root,
         )
-        annFile_train = "/lab_data/tarrlab/common/datasets/coco_annotations/instances_train2017.json"
+        import configparser
+
+        config = configparser.ConfigParser()
+        config.read("config.cfg")
+        annFile_train = config["COCO"]["AnnFileTrain"]
         coco_train = COCO(annFile_train)
         # cats = coco_train.loadCats(coco_train.getCatIds())
         # id2cat = {}
@@ -722,7 +610,10 @@ if __name__ == "__main__":
         from util.model_config import COCO_super_cat as cat_list
 
         COCO_cat_feat = get_preloaded_features(
-            1, stimulus_list, "supcat", features_dir="%s/features" % args.output_root,
+            1,
+            stimulus_list,
+            "supcat",
+            features_dir="%s/features" % args.output_root,
         )
         print(COCO_cat_feat.shape)
 
@@ -876,118 +767,3 @@ if __name__ == "__main__":
         plt.savefig(
             "figures/PCA/PC0_analysis/pc0_vs_unique_var_subj_%s.png" % args.subj
         )
-
-    # if args.maximize_input_for_cluster:
-    #     # verify they are in a patch?
-    #     from analyze_clip_results import extract_text_activations, extract_emb_keywords, get_coco_anns, get_coco_image, get_coco_caps
-    #     from featureprep.feature_prep import get_preloaded_features
-
-    #     from pycocotools.coco import COCO
-    #     annFile_train = "/lab_data/tarrlab/common/datasets/coco_annotations/instances_train2017.json"
-    #     # annFile_val = "/lab_data/tarrlab/common/datasets/coco_annotations/instances_val2017.json"
-    #     coco_train = COCO(annFile_train)
-    #     # coco_val = COCO(annFile_val)
-
-    #     model = "clip"
-    #     plotting = False
-    #     best_voxel_n = 20000
-    #     n_clusters = 4
-    #     n_pcs = 3
-
-    #     stimulus_list = np.load(
-    #         "%s/output/coco_ID_of_repeats_subj%02d.npy" % (args.output_root, 1)
-    #     )
-
-    #     activations = get_preloaded_features(
-    #         1,
-    #         stimulus_list,
-    #         "clip",
-    #         features_dir="%s/features" % args.output_root,
-    #     )
-
-    #     PCs = np.load(
-    #         "%s/output/pca/%s/subj%02d/%s_pca_group_components.npy"
-    #         % (args.output_root, model, args.subj, model)
-    #     )[:n_pcs,:]
-    #     subj_mask = np.load(
-    #                 "%s/output/pca/%s/pca_voxels/pca_voxels_subj%02d_best_%d.npy"
-    #                 % (args.output_root, model, args.subj, best_voxel_n)
-    #             )
-    #     PC_val_only = PCs[:, subj_mask]
-
-    #     subj_w = np.load(
-    #                 "%s/output/encoding_results/subj%d/weights_%s_whole_brain.npy"
-    #                 % (args.output_root, args.subj, model)
-    #             )
-    #     subj_w = fill_in_nan_voxels(subj_w, args.subj, args.output_root)
-    #     masked_weight = subj_w[:, subj_mask]
-
-    #     from sklearn.cluster import KMeans
-    #     kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(PC_val_only.T)
-
-    #     max_text = dict()
-    #     print(masked_weight.shape)
-    #     for c in tqdm(range(n_clusters)):
-    #         vox = kmeans.labels_==c
-    #         print(np.sum(vox))
-
-    #         #maximize image
-    #         scores = np.mean(activations.squeeze() @ masked_weight[:, vox], axis=1)
-    #         best_img_ids = stimulus_list[np.argsort(scores)[::-1][:20]]
-
-    #         # plot images
-    #         plt.figure()
-    #         for j, id in enumerate(best_img_ids):
-    #             plt.subplot(4, 5, j + 1)
-    #             I = get_coco_image(id)
-    #             plt.axis("off")
-    #             plt.imshow(I)
-    #         plt.tight_layout()
-    #         fig_root = "figures/PCA/clustering/%dclusters_maximization" % n_clusters
-    #         if not os.path.exists(fig_root):
-    #             os.makedirs(fig_root)
-    #         plt.savefig("%s/%s_cluster%d_best_images.png" % (fig_root, model, c))
-
-    #         #maximize text
-    #         from analyze_clip_results import extract_emb_keywords
-    #         with open("%s/output/clip/word_interpretation/1000eng.txt" % args.output_root) as f:
-    #             out = f.readlines()
-    #         common_words = ["photo of " + w[:-1] for w in out]
-    #         activations = np.load(
-    #             "%s/output/clip/word_interpretation/1000eng_activation.npy"
-    #             % args.output_root
-    #         )
-
-    #         b, w = extract_emb_keywords(masked_weight[:, vox], activations, common_words)
-    #         max_text[c] = [b, w]
-    #     pickle.dump(
-    #         max_text,
-    #         open(
-    #             "%s/output/pca/%s/subj%02d/max_text.json"
-    #             % (args.output_root, model, args.subj),
-    #             "wb",
-    #         ),
-    #     )
-    #     print(max_text)
-
-    # from numpy.linalg import svd
-    # w = load_weight_matrix_from_subjs_for_pca(args).T
-    # print(w.shape)
-
-    # w0 = w - w.mean(axis=0, keepdims=True)
-
-    # U, S, Vt = svd(w0, full_matrices=False)
-    # proj1 = w0.dot(Vt[:20, :].T)
-
-    # pca = PCA(n_components=20, svd_solver="full")
-    # proj2 = pca.fit_transform(w0)
-
-    # print(((pca.components_ - Vt[:20, :])**2).mean())
-    # print(((proj1 - proj2)**2).mean())
-
-    # print(np.sum(proj1[:, 0]**2))
-    # print(np.sum(proj1[:, 1]**2))
-    # print(np.sum(proj2[:, 0]**2))
-    # print(np.sum(proj2[:, 1]**2))
-
-    # print(S[:20])

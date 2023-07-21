@@ -183,10 +183,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--subj", default=0, type=int)
     parser.add_argument(
-        "--feature_dir", type=str, default="features",
+        "--feature_dir",
+        type=str,
+        default="features",
     )
     parser.add_argument(
-        "--project_output_dir", type=str, default="output",
+        "--project_output_dir",
+        type=str,
+        default="output",
     )
     parser.add_argument("--dataset", type=str, default="YFCC")
 
@@ -194,7 +198,12 @@ if __name__ == "__main__":
     parser.add_argument("--layer", type=str, default="final")
 
     args = parser.parse_args()
-    stimuli_dir = "/lab_data/tarrlab/common/datasets/NSD_images/images"
+
+    import configparser
+
+    config = configparser.ConfigParser()
+    config.read("config.cfg")
+    stimuli_dir = config["DATA"]["StimuliDir"]
 
     print(args)
 
