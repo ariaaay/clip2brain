@@ -35,7 +35,7 @@ for subj in {1..8}; do
 
 
     # computer explainable variance for the data and output data averaged by repeats
-    python src/compute_ev.py --subj $subj --zscored_input
+    python src/compute_ev.py --subj $subj --zscored_input --compute_ev
 
     # extract model features
     python src/extract_clip_features.py --subj $subj
