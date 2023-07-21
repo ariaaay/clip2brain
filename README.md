@@ -20,9 +20,10 @@ Install `torch` and `torchvision` from [PyTorch](https://pytorch.org/).
 
 ### Step 3: Set up paths in `config.cfg`
 Modify `config.cfg` to reflect local paths to NSD data and COCO annotations.
+See current `config.cfg` for an example.
 
 ### Step 4: Reproduce results!
-Note: Code in project commands by default runs all models for all subjects. If you would like to speed up the process and only test out certain model, please comment out models you don't need.
+Note: `project_commands.sh` by default runs all models for all subjects. If you would like to speed up the process and only test out certain model, please comment out models you don't need.
 ```
 sh project_commands.sh
 ```
