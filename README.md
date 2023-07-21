@@ -17,6 +17,7 @@ pip install -r requirement.txt --no-index
 ```
 
 ### Step 3: Reproduce results!
+Note: Code in project commands by default runs all models for all subjects. If you would like to speed up the process and only test out certain model, please comment out models you don't need.
 ```
 sh project_commands.sh
 ```
