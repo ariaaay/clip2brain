@@ -1,5 +1,6 @@
 # clip2brain
 [![DOI](https://zenodo.org/badge/663684836.svg)](https://zenodo.org/badge/latestdoi/663684836)
+
 Code from paper "Natural language supervision with a large and diverse dataset builds better models of human high-level visual cortex"
 
 ### Step 1: Clone the code from Github and download the data
