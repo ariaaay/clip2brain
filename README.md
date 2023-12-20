@@ -16,9 +16,9 @@ For downstream analysis you might also need to download [coco annotations](https
 ```
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
-Install `torch` and `torchvision` from [PyTorch](https://pytorch.org/).
+Install `torch` and `torchvision` from [PyTorch](https://pytorch.org/) according to your own system setup. 
 
 ### Step 3: Set up paths in `config.cfg`
 Modify `config.cfg` to reflect local paths to NSD data and COCO annotations.
