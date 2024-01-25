@@ -13,6 +13,8 @@ For downstream analysis you might also need to download [coco annotations](https
 
 (OPTIONAL) Models in comparison to CLIP (SimCLR, SLIP) can be downloaded at: https://github.com/facebookresearch/SLIP?tab=readme-ov-file, under ViT-base structure.
 
+(OPTIONAL) Pycortex DB for the NSD subjects can be downloaded here: https://drive.google.com/drive/folders/1YXAYggtlsfFxMtiqWs0UrMihxI125MHb?usp=sharing
+
 ### Step 2: Install requirements
 [Requirements.txt](https://github.com/ariaaay/clip2brain/blob/main/requirements.txt) contains the necessary package for to run the code in this project.
 ```
