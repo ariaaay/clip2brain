@@ -11,6 +11,8 @@ cd clip2brain
 You will also need to install the [natural scene datasets](https://naturalscenesdataset.org/).
 For downstream analysis you might also need to download [coco annotations](https://cocodataset.org/#download). It is optional for just running encoding models. The one used for analysis are: 2017 Train/Val annotations (241MB).
 
+(OPTIONAL) Models in comparison to CLIP (SimCLR, SLIP) can be downloaded at: https://github.com/facebookresearch/SLIP?tab=readme-ov-file, under ViT-base structure.
+
 ### Step 2: Install requirements
 [Requirements.txt](https://github.com/ariaaay/clip2brain/blob/main/requirements.txt) contains the necessary package for to run the code in this project.
 ```
