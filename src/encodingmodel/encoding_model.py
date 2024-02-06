@@ -175,9 +175,8 @@ def bootstrap_sampling(weights, bias, X_mean, X_test, y_test, repeat, seed):
     label_idx = np.arange(X_test.shape[0])
     for _ in tqdm(range(repeat)):
         sampled_idx = np.random.choice(label_idx, replace=True, size=len(label_idx))
-        X_test_sampled = X_test[sampled_idx, :]
         y_test_sampled = y_test[sampled_idx, :]
-        yhat = (X_test_sampled - X_mean) @ weights + bias
+        yhat = (X_test - X_mean) @ weights + bias
 
         rsqs = r2_score(y_test_sampled, yhat.cpu().numpy())
         rsq_dist.append(rsqs)
